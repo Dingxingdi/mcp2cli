@@ -60,6 +60,10 @@ Options:
   --base-url URL          Override base URL from spec
   --transport TYPE        MCP HTTP transport: auto|sse|streamable (default: auto)
   --env KEY=VALUE         Env var for stdio server process (repeatable)
+  --session-start NAME   Start a persistent session daemon (requires --mcp or --mcp-stdio)
+  --session NAME         Route command through an existing session daemon
+  --session-stop NAME    Stop a named session daemon (sends SIGTERM)
+  --session-list         List all active sessions with PID and alive/dead status
   --oauth                 Enable OAuth (authorization code + PKCE flow)
   --oauth-client-id ID    OAuth client ID (supports env:/file: prefixes)
   --oauth-client-secret S OAuth client secret (supports env:/file: prefixes)
@@ -190,6 +194,28 @@ File parameters show `(file path)` in `--help` output. MIME types are auto-detec
 
 ```bash
 mcp2cli --mcp-stdio "node server.js" --env API_KEY=env:API_SECRET_KEY --env DEBUG=1 search --query "test"
+```
+
+### Session management — persistent MCP connections
+ 
+Every `--mcp-stdio` invocation spawns a fresh subprocess, pays startup cost, then exits.
+Sessions keep the MCP server alive in a background daemon, reachable via Unix domain socket.
+ 
+```bash
+# Start a persistent session for a stdio server
+mcp2cli --mcp-stdio "npx @modelcontextprotocol/server-filesystem /tmp" \
+  --session-start myfs
+ 
+# Use the session — no subprocess spawn, no startup delay
+mcp2cli --session myfs --list
+mcp2cli --session myfs read-file --path /tmp/hello.txt
+mcp2cli --session myfs write-file --path /tmp/world.txt --content "hi"
+ 
+# Check active sessions
+mcp2cli --session-list
+ 
+# Stop when done
+mcp2cli --session-stop myfs
 ```
 
 ### Bake mode — saved configurations
