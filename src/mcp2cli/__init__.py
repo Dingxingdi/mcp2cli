@@ -2732,6 +2732,8 @@ def _session_meta_path(name: str) -> Path:
 def _session_sock_path(name: str) -> Path:
     return SESSIONS_DIR / f"{name}.sock"
 
+def _session_log_path(name: str) -> Path:
+    return SESSIONS_DIR / f"{name}.log"
 
 def _session_is_alive(meta: dict) -> bool:
     pid = meta.get("pid")
@@ -2765,6 +2767,7 @@ def session_stop(name: str):
     """Stop a named session."""
     meta_path = _session_meta_path(name)
     sock_path = _session_sock_path(name)
+    log_path = _session_log_path(name)
     if meta_path.exists():
         try:
             meta = json.loads(meta_path.read_text())
@@ -2782,6 +2785,7 @@ def session_stop(name: str):
             pass
         meta_path.unlink(missing_ok=True)
     sock_path.unlink(missing_ok=True)
+    log_path.unlink(missing_ok=True)
 
 
 def session_start(
@@ -2824,7 +2828,7 @@ def session_start(
         }
     )
 
-    log_path = SESSIONS_DIR / f"{name}.log"
+    log_path = _session_log_path(name)
     proc = subprocess.Popen(
         [
             sys.executable,
