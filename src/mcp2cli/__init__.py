@@ -2832,7 +2832,7 @@ def session_start(
         ],
         start_new_session=True,
         stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stderr=open(log_path, "a"),
         stdin=subprocess.DEVNULL,
     )
 
