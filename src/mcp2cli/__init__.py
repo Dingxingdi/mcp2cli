@@ -2824,6 +2824,7 @@ def session_start(
         }
     )
 
+    log_path = SESSIONS_DIR / f"{name}.log"
     proc = subprocess.Popen(
         [
             sys.executable,
